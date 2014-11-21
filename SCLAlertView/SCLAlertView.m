@@ -36,6 +36,8 @@ blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 @property (nonatomic) BOOL canAddObservers;
 @property (nonatomic) BOOL keyboardIsVisible;
 @property (nonatomic) CGFloat backgroundOpacity;
+@property (nonatomic, strong) UIWindow *previousWindow;
+@property (nonatomic, strong) UIWindow *alertWindow;
 
 @end
 
@@ -444,20 +446,23 @@ NSTimer *durationTimer;
 
 #pragma mark - Show Alert
 
--(SCLAlertViewResponder *)showTitle:(UIViewController *)vc image:(UIImage *)image color:(UIColor *)color title:(NSString *)title subTitle:(NSString *)subTitle duration:(NSTimeInterval)duration completeText:(NSString *)completeText style:(SCLAlertViewStyle)style
+-(SCLAlertViewResponder *)showTitle:(UIImage *)image color:(UIColor *)color title:(NSString *)title subTitle:(NSString *)subTitle duration:(NSTimeInterval)duration completeText:(NSString *)completeText style:(SCLAlertViewStyle)style
 {
-    UIViewController *rootViewController = vc;
+    self.previousWindow = [[UIApplication sharedApplication] keyWindow];
+    UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[self mainScreenFrame]];
+    alertWindow.windowLevel = UIWindowLevelAlert;
+    alertWindow.backgroundColor = [UIColor clearColor];
+    alertWindow.rootViewController = self;
+    self.alertWindow = alertWindow;
     
     self.view.alpha = 0;
     
     [self setBackground];
     
-    _backgroundView.frame = vc.view.bounds;
-    
-    // Add subviews
-    [rootViewController addChildViewController:self];
-    [rootViewController.view addSubview:_backgroundView];
-    [rootViewController.view addSubview:self.view];
+    _backgroundView.frame = alertWindow.bounds;
+
+    // Add background subview
+    [alertWindow addSubview:_backgroundView];
 
     // Alert color/icon
     UIColor *viewColor;
@@ -609,6 +614,8 @@ NSTimer *durationTimer;
                                                          repeats:NO];
     }
 
+    [alertWindow makeKeyAndVisible];
+
     // Show the alert view
     [self showView];
 
@@ -618,42 +625,82 @@ NSTimer *durationTimer;
 
 - (void)showSuccess:(UIViewController *)vc title:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
 {
-    [self showTitle:vc image:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Success];
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Success];
 }
 
 - (void)showError:(UIViewController *)vc title:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
 {
-    [self showTitle:vc image:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Error];
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Error];
 }
 
 - (void)showNotice:(UIViewController *)vc title:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
 {
-    [self showTitle:vc image:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Notice];
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Notice];
 }
 
 - (void)showWarning:(UIViewController *)vc title:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
 {
-    [self showTitle:vc image:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Warning];
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Warning];
 }
 
 - (void)showInfo:(UIViewController *)vc title:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
 {
-    [self showTitle:vc image:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Info];
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Info];
 }
 
 - (void)showEdit:(UIViewController *)vc title:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
 {
-    [self showTitle:vc image:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Edit];
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Edit];
 }
 
 - (void)showTitle:(UIViewController *)vc title:(NSString *)title subTitle:(NSString *)subTitle style:(SCLAlertViewStyle)style closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
 {
-    [self showTitle:vc image:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:style];
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:style];
 }
 
 - (void)showCustom:(UIViewController *)vc image:(UIImage *)image color:(UIColor *)color title:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
 {
-    [self showTitle:vc image:image color:color title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Custom];
+    [self showTitle:image color:color title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Custom];
+}
+
+- (void)showSuccess:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
+{
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Success];
+}
+
+- (void)showError:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
+{
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Error];
+}
+
+- (void)showNotice:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
+{
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Notice];
+}
+
+- (void)showWarning:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
+{
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Warning];
+}
+
+- (void)showInfo:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
+{
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Info];
+}
+
+- (void)showEdit:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
+{
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Edit];
+}
+
+- (void)showTitle:(NSString *)title subTitle:(NSString *)subTitle style:(SCLAlertViewStyle)style closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
+{
+    [self showTitle:nil color:nil title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:style];
+}
+
+- (void)showCustom:(UIImage *)image color:(UIColor *)color title:(NSString *)title subTitle:(NSString *)subTitle closeButtonTitle:(NSString *)closeButtonTitle duration:(NSTimeInterval)duration
+{
+    [self showTitle:image color:color title:title subTitle:subTitle duration:duration completeText:closeButtonTitle style:Custom];
 }
 
 #pragma mark - Visibility
@@ -769,6 +816,8 @@ NSTimer *durationTimer;
     {
         self.dismissBlock();
     }
+    [self.previousWindow makeKeyAndVisible];
+    self.previousWindow = nil;
 }
 
 #pragma mark - Hide Animations
@@ -780,8 +829,7 @@ NSTimer *durationTimer;
         self.view.alpha = 0.0f;
     } completion:^(BOOL completed) {
         [self.backgroundView removeFromSuperview];
-        [self.view removeFromSuperview];
-        [self removeFromParentViewController];
+        self.alertWindow = nil;
     }];
 }
 
