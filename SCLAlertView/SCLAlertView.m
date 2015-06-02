@@ -528,31 +528,25 @@ NSTimer *durationTimer;
         }
         
         // Adjust text view size, if necessary
-        CGSize sz = CGSizeMake(kWindowWidth - 24.0f, 90.0f);
+        CGSize sz = CGSizeMake(kWindowWidth - 24.0f, CGFLOAT_MAX);
         NSDictionary *attr = @{NSFontAttributeName:self.viewText.font};
         
+        CGRect r;
+
         if([[[UIDevice currentDevice] systemVersion] floatValue] >= 7.0)
         {
             NSString *str = subTitle;
-            CGRect r = [str boundingRectWithSize:sz options:NSStringDrawingUsesLineFragmentOrigin attributes:attr context:nil];
-            CGFloat ht = ceil(r.size.height);
-            if (ht < kTextHeight)
-            {
-                kWindowHeight -= (kTextHeight - ht);
-                kTextHeight = ht;
-            }
+            r = [str boundingRectWithSize:sz options:NSStringDrawingUsesLineFragmentOrigin attributes:attr context:nil];
         }
         else
         {
             NSAttributedString *str =[[NSAttributedString alloc] initWithString:subTitle attributes:attr];
-            CGRect r = [str boundingRectWithSize:sz options:NSStringDrawingUsesLineFragmentOrigin context:nil];
-            CGFloat ht = ceil(r.size.height);
-            if (ht < kTextHeight)
-            {
-                kWindowHeight -= (kTextHeight - ht);
-                kTextHeight = ht;
-            }
+            r = [str boundingRectWithSize:sz options:NSStringDrawingUsesLineFragmentOrigin context:nil];
         }
+
+        CGFloat ht = ceil(r.size.height);
+        kWindowHeight -= (kTextHeight - ht);
+        kTextHeight = ht;
     }
     
     // Play sound, if necessary
